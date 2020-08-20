@@ -45,10 +45,15 @@ This will resolve the library not loaded error. This can be easily modified to w
 Example to use the bindings below.
 
 ```python
+
 import torch
 from warprnnt_pytorch import RNNTLoss
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu' # whether use GPU version
+
 rnnt_loss = RNNTLoss()
-cuda = False # whether use GPU version
+rnnt_loss = rnnt_loss.to(device)
+
 acts = torch.FloatTensor([[[[0.1, 0.6, 0.1, 0.1, 0.1],
                             [0.1, 0.1, 0.6, 0.1, 0.1],
                             [0.1, 0.1, 0.2, 0.8, 0.1]],
@@ -58,17 +63,21 @@ acts = torch.FloatTensor([[[[0.1, 0.6, 0.1, 0.1, 0.1],
 labels = torch.IntTensor([[1, 2]])
 act_length = torch.IntTensor([2])
 label_length = torch.IntTensor([2])
-if cuda: 
-    acts = acts.cuda()
-    labels = labels.cuda()
-    act_length = act_length.cuda()
-    label_length = label_length.cuda()
-acts = torch.autograd.Variable(acts, requires_grad=True)
-labels = torch.autograd.Variable(labels)
-act_length = torch.autograd.Variable(act_length)
-label_length = torch.autograd.Variable(label_length)
+probs_sizes = torch.IntTensor([2])
+label_sizes = torch.IntTensor([2])
+
+
+acts = acts.to(device)
+
+acts.requires_grad_(True)
+
+labels = labels.to(device)
+act_length = act_length.to(device)
+label_length = label_length.to(device)
+
 loss = rnnt_loss(acts, labels, act_length, label_length)
 loss.backward()
+
 ```
 
 ## Documentation
